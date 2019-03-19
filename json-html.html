@@ -1,0 +1,106 @@
+<!doctype html>
+<!-- jsontable.html -->
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<title>JSON To HTML</title>
+<style>
+#container1{
+  border:1px solid black;
+  width: 75%;
+  margin: auto;
+  padding: 5px;
+  visibility: hidden;
+}
+.visible{
+  visibility: visible;
+}
+
+@media print{
+  form {
+    display:none;
+  }
+  #container1{
+    margin-top: 20px;
+    border-width: 0px;
+  }
+}
+
+</style>
+
+</head>
+<body>
+  <div class="container">
+    <div id="container1">
+        <div id="output"> Nothing yet </div>
+    </div>
+    <div class="offset-lg-3 col-lg-6" id="container2">
+      <form>
+        <div class="form-group">
+          <label>JSON-text:</label>
+          <textarea class="form-control" rows="5" id="json_area"></textarea>
+          <button type="button" class="btn btn-default" onclick="get_textarea();container1.className='visible'">HTML-it!</button>
+        </div>
+        <div class="form-group">
+          <label>JSON-api link</label>
+          <input class="form-control" id="api_input"></input>
+          <button type="button" class="btn btn-info" onclick="get_JSON();container1.className='visible'">Fetch from API</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script>
+    function get_JSON(){
+      var url = document.getElementById("api_input").value;
+      if(!url){
+        alert("API-link box is empty.")
+      }else{
+    fetch(url)
+    .then(response => response.json())
+    .then(function(json){
+      var my_text = json_convert(json);
+      document.getElementById("output").innerHTML = my_text;
+    });
+    }
+  };
+
+  function get_textarea(){
+    var text_field = document.getElementById("json_area").value;
+
+    if (text_field){
+      json_text = JSON.parse(text_field)
+      console.log(typeof(json_text))
+      var my_text = json_convert(json_text);
+      document.getElementById("output").innerHTML = my_text;
+    }else{
+      alert("The textbox is empty.");
+    }
+  }
+  
+  function json_convert(json_string, depth=0, text = ""){
+    for (item in json_string){
+      var heading = `<h${depth+1}>${item}</h${depth+1}>`;
+      if(text != "")
+        text += "<hr>";
+      text += heading;
+
+      if (json_string[item].constructor == Object){
+        text = json_convert(json_string[item], depth+1, text)
+      }else if (Array.isArray(json_string[item])){
+        text += "<ul>"
+        for (var i = 0; i < json_string[item].length; i++){
+          text += "<li>" + (json_string[item][i] + "</br>");
+        }
+        text += "</ul>"
+      }else{
+        text += json_string[item];
+        text += "</br>";
+      }
+    }
+    return text
+  }
+
+
+  </script>
+</body>
+</html>
